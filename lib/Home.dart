@@ -1,5 +1,6 @@
 import 'package:bloco_de_anotacao/Banco_Dados/Banco_De_Dados.dart';
 import 'package:bloco_de_anotacao/Banco_Dados/Listas.dart';
+import 'package:bloco_de_anotacao/Tela_De_Tarefas.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -40,7 +41,7 @@ class _State extends State<Home> {
                       labelText: "Lista",
                       hintText: "Digite una Lista De tarefas"),
                 ),
-               if (lista == null)
+                if (lista == null)
                   TextField(
                     controller: _controllerTarefas,
                     decoration: InputDecoration(
@@ -57,7 +58,7 @@ class _State extends State<Home> {
               FlatButton(
                 child: Text(textSalvar_Atualizar),
                 onPressed: () {
-                  if(_controllerLista.text != ""){
+                  if (_controllerLista.text != "") {
                     Salvar_E_Atualizar_DadosLista(list: lista);
                     Navigator.pop(context);
                   }
@@ -130,6 +131,11 @@ class _State extends State<Home> {
                     return Card(
                       child: ListTile(
                         title: Text(lista.titulo),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    Tela_de_tarefas(lista.id))),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[

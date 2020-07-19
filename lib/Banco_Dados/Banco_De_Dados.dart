@@ -28,8 +28,13 @@ class BancoDados {
     String sql = "CREATE TABLE $nomeTebelaPrincipal("
         "id INTEGER PRIMARY KEY AUTOINCREMENT,"
         "titulo VARCHAR,"
-        "descricao TEXT,"
-        "data DATETIME)";
+        "data DATETIME);"
+        "CREATE TABLE $nomeTabelasecundaria("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "id_lista INTEGER,"
+        "tarefas TEXT,"
+        "data datatime,"
+        "FOREING KEY (id_lista) REFERENCES $nomeTebelaPrincipal(id));";
     await db.execute(sql);
   }
 
