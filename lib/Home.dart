@@ -1,6 +1,5 @@
 import 'package:bloco_de_anotacao/Banco_Dados/Banco_De_Dados.dart';
 import 'package:bloco_de_anotacao/Banco_Dados/Listas.dart';
-
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -13,47 +12,100 @@ class _State extends State<Home> {
   List<Lista> _lista = List();
   TextEditingController _controllerLista = TextEditingController();
   TextEditingController _controllerTarefas = TextEditingController();
-  bool a = true;
+
   var _db = BancoDados();
 
-
-
-
+  Exibir_e_Atualizar_Lista({Lista lista}) {
+    String textSalvar_Atualizar;
+    if (lista == null) {
+      _controllerLista.clear();
+      _controllerLista.clear();
+      textSalvar_Atualizar = "Salvar";
+    } else {
+      _controllerLista.text = lista.titulo;
+      textSalvar_Atualizar = "Atualizar";
+    }
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("$textSalvar_Atualizar Anotações"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextField(
+                  controller: _controllerLista,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                      labelText: "Lista",
+                      hintText: "Digite una Lista De tarefas"),
+                ),
+               if (lista == null)
+                  TextField(
+                    controller: _controllerTarefas,
+                    decoration: InputDecoration(
+                        labelText: "Tarefa",
+                        hintText: "Digite uma tarefa da Lista"),
+                  ),
+              ],
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Cancelar"),
+                onPressed: () => Navigator.pop(context),
+              ),
+              FlatButton(
+                child: Text(textSalvar_Atualizar),
+                onPressed: () {
+                  if(_controllerLista.text != ""){
+                    Salvar_E_Atualizar_DadosLista(list: lista);
+                    Navigator.pop(context);
+                  }
+                },
+              )
+            ],
+          );
+        });
+  }
 
   Salvar_E_Atualizar_DadosLista({Lista list}) async {
     String titulo = _controllerLista.text;
+    String tarefa = _controllerTarefas.text;
     if (list == null) {
       Lista lista = Lista(titulo, DateTime.now().toString());
-      int _resultado = await _db.SalvarAnotacao(lista);
+      int _resultado = await _db.SalvarLista(lista);
     } else {
       list.titulo = titulo;
       list.data = DateTime.now().toString();
-      int _resultado = await _db.atualizarAnotcao(list);
+      int _resultado = await _db.AtualizandoLista(list);
     }
+    _controllerTarefas.clear();
+    _controllerLista.clear();
     _recupera();
   }
 
-  _recupera()async{
-    List listaRecuperada = await _db.recuoeraAnotacao();
+  _recupera() async {
+    List listaRecuperada = await _db.RecuperaListas();
     List<Lista> listaTemporaria = List<Lista>();
     for (var item in listaRecuperada) {
       Lista lista = Lista.fromMap(item);
       listaTemporaria.add(lista);
     }
-
-
     setState(() {
-      print("aaaaaa  "+listaTemporaria.length.toString());
       _lista = listaTemporaria;
     });
+    listaTemporaria = null;
+  }
 
+  _RemoverLista(int id) async {
+    await _db.ExcluindoLista(id);
+    _recupera();
   }
 
   @override
   void initState() {
     super.initState();
     _recupera();
-
   }
 
   @override
@@ -74,18 +126,17 @@ class _State extends State<Home> {
               child: ListView.builder(
                   itemCount: _lista.length,
                   itemBuilder: (context, index) {
-                    final anotacao = _lista[index];
+                    final lista = _lista[index];
                     return Card(
                       child: ListTile(
-                        title: Text(anotacao.titulo),
+                        title: Text(lista.titulo),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             GestureDetector(
                               onTap: () {
-                                _recupera();
+                                Exibir_e_Atualizar_Lista(lista: lista);
                               },
-
                               child: Padding(
                                 padding: EdgeInsets.only(right: 16),
                                 child: Icon(
@@ -102,7 +153,7 @@ class _State extends State<Home> {
                                         return AlertDialog(
                                           title: Text(
                                               "Tem certeza que deseja excluir?  " +
-                                                  anotacao.titulo),
+                                                  lista.titulo),
                                           actions: <Widget>[
                                             FlatButton(
                                                 onPressed: () =>
@@ -110,7 +161,7 @@ class _State extends State<Home> {
                                                 child: Text("Cancelar")),
                                             FlatButton(
                                                 onPressed: () {
-
+                                                  _RemoverLista(lista.id);
                                                   Navigator.pop(context);
                                                 },
                                                 child: Text("Excluir"))
@@ -137,7 +188,7 @@ class _State extends State<Home> {
         foregroundColor: Colors.purple,
         child: Icon(Icons.add_box),
         onPressed: () {
-      //    _Exibir_e_Atualizar_Lista();
+          Exibir_e_Atualizar_Lista();
         },
       ),
     );
