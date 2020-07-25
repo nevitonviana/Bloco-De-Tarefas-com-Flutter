@@ -1,4 +1,4 @@
-#Sun Jul 19 19:23:32 BRT 2020
+#Sat Jul 25 18:58:18 BRT 2020
 base.0=C\:\\Users\\Nevit\\Desktop\\flutter\\bloco_de_anotacao\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\out\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

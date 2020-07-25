@@ -135,7 +135,7 @@ class _State extends State<Home> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    Tela_de_tarefas(lista.id))),
+                            Tela_de_tarefas(lista.id, lista.titulo))),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[

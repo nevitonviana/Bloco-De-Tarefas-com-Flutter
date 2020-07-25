@@ -1,30 +1,32 @@
-import 'package:bloco_de_anotacao/Banco_Dados/Banco_De_Dados.dart';
-import 'package:bloco_de_anotacao/Banco_Dados/Listas.dart';
+import 'package:bloco_de_anotacao/Banco_Dados/Tarefa.dart';
 import 'package:flutter/material.dart';
+import 'Banco_Dados/Banco_De_Dados.dart';
+import 'Banco_Dados/Banco_De_dados2.dart';
 
 class Tela_de_tarefas extends StatefulWidget {
   int id;
-  Tela_de_tarefas(this.id);
+  String titulo;
+
+  Tela_de_tarefas(this.id, this.titulo);
+
   @override
   _State createState() => _State();
 }
 
 class _State extends State<Tela_de_tarefas> {
   //declaração de variaves
-  List<Lista> _lista = List();
-  TextEditingController _controllerLista = TextEditingController();
+  List<Tarefa> _lista = List();
   TextEditingController _controllerTarefas = TextEditingController();
 
-  var _db = BancoDados();
+  var _db = BancoDados2();
 
-  Exibir_e_Atualizar_Lista({Lista lista}) {
+  Exibir_e_Atualizar_Lista({Tarefa tarefa}) {
     String textSalvar_Atualizar;
-    if (lista == null) {
-      _controllerLista.clear();
-      _controllerLista.clear();
+    if (tarefa == null) {
+      _controllerTarefas.clear();
       textSalvar_Atualizar = "Salvar";
     } else {
-      _controllerLista.text = lista.titulo;
+      _controllerTarefas.text = tarefa.tarefa;
       textSalvar_Atualizar = "Atualizar";
     }
     showDialog(
@@ -36,19 +38,12 @@ class _State extends State<Tela_de_tarefas> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 TextField(
-                  controller: _controllerLista,
+                  controller: _controllerTarefas,
                   autofocus: true,
                   decoration: InputDecoration(
-                      labelText: "Lista",
-                      hintText: "Digite una Lista De tarefas"),
+                      labelText: "Tarefa",
+                      hintText: "Digite uma tarefa da Lista"),
                 ),
-                if (lista == null)
-                  TextField(
-                    controller: _controllerTarefas,
-                    decoration: InputDecoration(
-                        labelText: "Tarefa",
-                        hintText: "Digite uma tarefa da Lista"),
-                  ),
               ],
             ),
             actions: <Widget>[
@@ -59,8 +54,9 @@ class _State extends State<Tela_de_tarefas> {
               FlatButton(
                 child: Text(textSalvar_Atualizar),
                 onPressed: () {
-                  if(_controllerLista.text != ""){
-                    Salvar_E_Atualizar_DadosLista(list: lista);
+                  if (_controllerTarefas.text != "") {
+                    print("iddd" + "foi");
+                    Salvar_E_Atualizar_DadosTarefas(lista: tarefa);
                     Navigator.pop(context);
                   }
                 },
@@ -70,28 +66,26 @@ class _State extends State<Tela_de_tarefas> {
         });
   }
 
-  Salvar_E_Atualizar_DadosLista({Lista list}) async {
-    String titulo = _controllerLista.text;
+  Salvar_E_Atualizar_DadosTarefas({Tarefa lista}) async {
     String tarefa = _controllerTarefas.text;
-    if (list == null) {
-      Lista lista = Lista(titulo, DateTime.now().toString());
-      int _resultado = await _db.SalvarLista(lista);
+    if (lista == null) {
+      Tarefa lista = Tarefa(widget.id,tarefa, DateTime.now().toString());
+      int _resultado = await _db.SalvarTarefas(lista);
     } else {
-      list.titulo = titulo;
-      list.data = DateTime.now().toString();
-      int _resultado = await _db.AtualizandoLista(list);
+      lista.tarefa = tarefa;
+      lista.data = DateTime.now().toString();
+      int _resultado = await _db.AtualizarTarefa(lista);
     }
     _controllerTarefas.clear();
-    _controllerLista.clear();
-    _recupera();
+    _recuperaTarefa();
   }
 
-  _recupera() async {
-    List listaRecuperada = await _db.RecuperaListas();
-    List<Lista> listaTemporaria = List<Lista>();
+  _recuperaTarefa() async {
+    List listaRecuperada = await _db.RecuperaTarefas(widget.id);
+    List<Tarefa> listaTemporaria = List<Tarefa>();
     for (var item in listaRecuperada) {
-      Lista lista = Lista.fromMap(item);
-      listaTemporaria.add(lista);
+      Tarefa tarefa = Tarefa.froMap(item);
+      listaTemporaria.add(tarefa);
     }
     setState(() {
       _lista = listaTemporaria;
@@ -100,14 +94,14 @@ class _State extends State<Tela_de_tarefas> {
   }
 
   _RemoverLista(int id) async {
-    await _db.ExcluindoLista(id);
-    _recupera();
+    await _db.ExcluindoTarefas(id);
+    _recuperaTarefa();
   }
 
   @override
   void initState() {
     super.initState();
-    _recupera();
+    _recuperaTarefa();
   }
 
   @override
@@ -115,7 +109,7 @@ class _State extends State<Tela_de_tarefas> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Bloco De Anotação",
+          widget.titulo,
           style: TextStyle(
               foreground: Paint()..color = Color(0xffa3b4ba),
               decorationStyle: TextDecorationStyle.double),
@@ -128,16 +122,16 @@ class _State extends State<Tela_de_tarefas> {
               child: ListView.builder(
                   itemCount: _lista.length,
                   itemBuilder: (context, index) {
-                    final lista = _lista[index];
+                    final tarefa = _lista[index];
                     return Card(
                       child: ListTile(
-                        title: Text(lista.titulo),
+                        title: Text(tarefa.tarefa),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             GestureDetector(
                               onTap: () {
-                                Exibir_e_Atualizar_Lista(lista: lista);
+                                Exibir_e_Atualizar_Lista(tarefa: tarefa);
                               },
                               child: Padding(
                                 padding: EdgeInsets.only(right: 16),
@@ -155,7 +149,7 @@ class _State extends State<Tela_de_tarefas> {
                                         return AlertDialog(
                                           title: Text(
                                               "Tem certeza que deseja excluir?  " +
-                                                  lista.titulo),
+                                                  tarefa.tarefa),
                                           actions: <Widget>[
                                             FlatButton(
                                                 onPressed: () =>
@@ -163,7 +157,7 @@ class _State extends State<Tela_de_tarefas> {
                                                 child: Text("Cancelar")),
                                             FlatButton(
                                                 onPressed: () {
-                                                  _RemoverLista(lista.id);
+                                                  _RemoverLista(tarefa.id);
                                                   Navigator.pop(context);
                                                 },
                                                 child: Text("Excluir"))
