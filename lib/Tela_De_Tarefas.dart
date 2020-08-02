@@ -1,7 +1,7 @@
 import 'package:bloco_de_anotacao/Banco_Dados/Tarefa.dart';
+import 'package:bloco_de_anotacao/FormatData.dart';
 import 'package:flutter/material.dart';
 import 'Banco_Dados/Banco_De_Dados.dart';
-import 'Banco_Dados/Banco_De_dados2.dart';
 
 class Tela_de_tarefas extends StatefulWidget {
   int id;
@@ -17,8 +17,9 @@ class _State extends State<Tela_de_tarefas> {
   //declaração de variaves
   List<Tarefa> _lista = List();
   TextEditingController _controllerTarefas = TextEditingController();
+  var data = Data();
 
-  var _db = BancoDados2();
+  var _db = BancoDados();
 
   Exibir_e_Atualizar_Lista({Tarefa tarefa}) {
     String textSalvar_Atualizar;
@@ -55,7 +56,6 @@ class _State extends State<Tela_de_tarefas> {
                 child: Text(textSalvar_Atualizar),
                 onPressed: () {
                   if (_controllerTarefas.text != "") {
-                    print("iddd" + "foi");
                     Salvar_E_Atualizar_DadosTarefas(lista: tarefa);
                     Navigator.pop(context);
                   }
@@ -69,7 +69,7 @@ class _State extends State<Tela_de_tarefas> {
   Salvar_E_Atualizar_DadosTarefas({Tarefa lista}) async {
     String tarefa = _controllerTarefas.text;
     if (lista == null) {
-      Tarefa lista = Tarefa(widget.id,tarefa, DateTime.now().toString());
+      Tarefa lista = Tarefa(widget.id, tarefa, DateTime.now().toString());
       int _resultado = await _db.SalvarTarefas(lista);
     } else {
       lista.tarefa = tarefa;
@@ -123,9 +123,64 @@ class _State extends State<Tela_de_tarefas> {
                   itemCount: _lista.length,
                   itemBuilder: (context, index) {
                     final tarefa = _lista[index];
-                    return Card(
+                    return Dismissible(
+                      key:
+                          Key(DateTime.now().millisecondsSinceEpoch.toString()),
+                      direction: DismissDirection.endToStart,
+                      background: Container(),
+                      secondaryBackground: Container(
+                        color: Colors.red,
+                        padding: EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Icon(
+                              Icons.remove_circle_outline,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                      onDismissed: (direcao) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text(
+                                    "Tem certeza que deseja excluir?  " +
+                                        tarefa.tarefa),
+                                actions: <Widget>[
+                                  FlatButton(
+                                      onPressed: () => Navigator.pop(
+                                          context, _recuperaTarefa()),
+                                      child: Text("Cancelar")),
+                                  FlatButton(
+                                      onPressed: () {
+                                        _RemoverLista(tarefa.id);
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("Excluir"))
+                                ],
+                              );
+                            });
+                      },
                       child: ListTile(
-                        title: Text(tarefa.tarefa),
+                        title: Row(
+                          children: <Widget>[
+                            Icon(Icons.fiber_manual_record,size: 10,color: Colors.lightBlueAccent,),
+                            Padding(padding: EdgeInsets.only(left: 10),),
+                            Text(tarefa.tarefa,style: TextStyle(fontSize: 20),)
+                          ],
+                        ),
+                        subtitle: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "última atualização\n" + data.data(tarefa.data),
+                              style: TextStyle(fontSize: 7, foreground: Paint()..color = Colors.black38,),
+                            ),
+                          ],
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
@@ -141,37 +196,6 @@ class _State extends State<Tela_de_tarefas> {
                                 ),
                               ),
                             ),
-                            GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: Text(
-                                              "Tem certeza que deseja excluir?  " +
-                                                  tarefa.tarefa),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context),
-                                                child: Text("Cancelar")),
-                                            FlatButton(
-                                                onPressed: () {
-                                                  _RemoverLista(tarefa.id);
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Text("Excluir"))
-                                          ],
-                                        );
-                                      });
-                                },
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 0),
-                                  child: Icon(
-                                    Icons.remove_circle_outline,
-                                    color: Colors.red,
-                                  ),
-                                ))
                           ],
                         ),
                       ),

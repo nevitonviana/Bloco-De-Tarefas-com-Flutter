@@ -1,5 +1,7 @@
 import 'package:bloco_de_anotacao/Banco_Dados/Banco_De_Dados.dart';
 import 'package:bloco_de_anotacao/Banco_Dados/Listas.dart';
+import 'package:bloco_de_anotacao/Banco_Dados/Tarefa.dart';
+import 'package:bloco_de_anotacao/FormatData.dart';
 import 'package:bloco_de_anotacao/Tela_De_Tarefas.dart';
 import 'package:flutter/material.dart';
 
@@ -13,8 +15,11 @@ class _State extends State<Home> {
   List<Lista> _lista = List();
   TextEditingController _controllerLista = TextEditingController();
   TextEditingController _controllerTarefas = TextEditingController();
-
+  bool s = false;
+  var data = Data();
   var _db = BancoDados();
+
+  // var _dbTarefa = BancoDados2();
 
   Exibir_e_Atualizar_Lista({Lista lista}) {
     String textSalvar_Atualizar;
@@ -52,9 +57,11 @@ class _State extends State<Home> {
             ),
             actions: <Widget>[
               FlatButton(
-                child: Text("Cancelar"),
-                onPressed: () => Navigator.pop(context),
-              ),
+                  child: Text("Cancelar"),
+                  onPressed: () {
+                    _recupera();
+                    Navigator.pop(context);
+                  }),
               FlatButton(
                 child: Text(textSalvar_Atualizar),
                 onPressed: () {
@@ -72,9 +79,15 @@ class _State extends State<Home> {
   Salvar_E_Atualizar_DadosLista({Lista list}) async {
     String titulo = _controllerLista.text;
     String tarefa = _controllerTarefas.text;
+    String realizada = "false";
     if (list == null) {
-      Lista lista = Lista(titulo, DateTime.now().toString());
+      Lista lista = Lista(titulo, realizada, DateTime.now().toString());
       int _resultado = await _db.SalvarLista(lista);
+      if (_controllerTarefas.text != "") {
+        Tarefa listaTarefa =
+            Tarefa(_resultado, tarefa, DateTime.now().toString());
+        _resultado = await _db.SalvarTarefas(listaTarefa);
+      }
     } else {
       list.titulo = titulo;
       list.data = DateTime.now().toString();
@@ -97,6 +110,7 @@ class _State extends State<Home> {
     });
     listaTemporaria = null;
   }
+
 
   _RemoverLista(int id) async {
     await _db.ExcluindoLista(id);
@@ -128,62 +142,87 @@ class _State extends State<Home> {
                   itemCount: _lista.length,
                   itemBuilder: (context, index) {
                     final lista = _lista[index];
-                    return Card(
+                    return Dismissible(
+                      key:
+                          Key(DateTime.now().millisecondsSinceEpoch.toString()),
+                      direction: DismissDirection.horizontal,
+                      onDismissed: (direcao) {
+                        if (direcao == DismissDirection.startToEnd) {
+                          Exibir_e_Atualizar_Lista(lista: lista);
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text(
+                                    "Tem certeza que deseja excluir?  " +
+                                        lista.titulo),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    onPressed: () {
+                                      _recupera();
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text("Cancelar"),
+                                  ),
+                                  FlatButton(
+                                      onPressed: () {
+                                        _RemoverLista(lista.id);
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text("Excluir"))
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      },
+                      background: Container(
+                        padding: EdgeInsets.all(16),
+                        color: Colors.blue,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(Icons.mode_edit),
+                          ],
+                        ),
+                      ),
+                      secondaryBackground: Container(
+                        color: Colors.red,
+                        padding: EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Icon(
+                              Icons.remove_circle_outline,
+                              color: Colors.white,
+                              size: 30,
+                            )
+                          ],
+                        ),
+                      ),
                       child: ListTile(
-                        title: Text(lista.titulo),
+                        title: Row(
+                          children: <Widget>[
+                            Icon(Icons.fiber_manual_record,size: 10,color: Colors.lightBlueAccent,),
+                            Padding(padding: EdgeInsets.only(left: 10),),
+                            Text(lista.titulo)
+                          ],
+                        ),
+                        subtitle: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              "última atualização\n" + data.data(lista.data),
+                              style: TextStyle(fontSize: 8, foreground: Paint()..color = Colors.black38,),
+                            ),
+                          ],
+                        ),
                         onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                            Tela_de_tarefas(lista.id, lista.titulo))),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: () {
-                                Exibir_e_Atualizar_Lista(lista: lista);
-                              },
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 16),
-                                child: Icon(
-                                  Icons.mode_edit,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: Text(
-                                              "Tem certeza que deseja excluir?  " +
-                                                  lista.titulo),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                                onPressed: () =>
-                                                    Navigator.pop(context),
-                                                child: Text("Cancelar")),
-                                            FlatButton(
-                                                onPressed: () {
-                                                  _RemoverLista(lista.id);
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Text("Excluir"))
-                                          ],
-                                        );
-                                      });
-                                },
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 0),
-                                  child: Icon(
-                                    Icons.remove_circle_outline,
-                                    color: Colors.red,
-                                  ),
-                                ))
-                          ],
-                        ),
+                                    Tela_de_tarefas(lista.id, lista.titulo))),
                       ),
                     );
                   }))
