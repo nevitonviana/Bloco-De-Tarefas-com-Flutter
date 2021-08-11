@@ -4,7 +4,6 @@ import 'package:bloco_de_tarefas/shared/database/Database.dart';
 import 'package:bloco_de_tarefas/shared/model/blocos.dart';
 import 'package:bloco_de_tarefas/shared/util/formataData.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
