@@ -1,12 +1,14 @@
 class Blocos {
-  String? id;
+  int? id;
   String? nomeDoBloco;
-  String? listaRealizada;
+  String listaRealizada = "false";
+  String? data;
 
   Blocos({
     this.id,
     this.nomeDoBloco,
-    this.listaRealizada,
+    this.listaRealizada = "false",
+    this.data,
   });
 
   Map<String, dynamic> toMap() {
@@ -14,12 +16,16 @@ class Blocos {
       "id": id,
       "nomeDoBloco": nomeDoBloco,
       "listaRealizada": listaRealizada,
+      "data": data,
     };
   }
 
-  Blocos.fromMap(Map map) {
-    this.id = map["id"];
-    this.nomeDoBloco= map["nomeDoBloco"];
-    this.listaRealizada = map["listaRealizada"];
+  factory Blocos.fromMap(Map<String, dynamic> map) {
+    return Blocos(
+      id: map["id"],
+      nomeDoBloco: map["nomeDoBloco"],
+      listaRealizada: map["listaRealizada"],
+      data: map["data"],
+    );
   }
 }

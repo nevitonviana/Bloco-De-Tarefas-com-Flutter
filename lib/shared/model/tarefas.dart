@@ -1,25 +1,35 @@
 class Tarefas {
-  String? id;
+  int? id;
+  int? idBloco;
   String? tarefa;
-  String? tarefaRealizada;
+  String tarefaRealizada = "false";
+  String? data;
 
   Tarefas({
     this.id,
+    this.idBloco,
     this.tarefa,
-    this.tarefaRealizada,
+    this.tarefaRealizada = "false",
+    this.data,
   });
 
   Map<String, dynamic> toMap() {
     return {
       "id": id,
+      "idBloco": idBloco,
       "tarefa": tarefa,
       "tarefaRealizada": tarefaRealizada,
+      "data": data,
     };
   }
 
-  Tarefas.fromMap(Map map) {
-    this.id = map["id"];
-    this.tarefa = map["tarefa"];
-    this.tarefaRealizada = map["tarefaRealizada"];
+  factory Tarefas.fromMap(Map<String, dynamic> map) {
+    return Tarefas(
+      id: map["id"],
+      idBloco: map["idBloco"],
+      tarefa: map["tarefa"],
+      tarefaRealizada: map["tarefaRealizada"],
+      data: map["data"]
+    );
   }
 }

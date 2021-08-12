@@ -7,7 +7,7 @@ void main() {
       theme: ThemeData(
         primaryColor: Colors.blueGrey.shade200,
         splashColor: Colors.amber,
-        accentColor: Colors.blueGrey.shade200,
+        accentColor: Colors.blueGrey.shade300,
       ),
       home: HomePage(),
     ),
