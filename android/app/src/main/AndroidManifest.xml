@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.blocodetarefas.bloco_de_tarefas">
    <application
-        android:label="bloco_de_tarefas"
-        android:icon="@mipmap/ic_launcher">
+        android:label="bloco de tarefas"
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

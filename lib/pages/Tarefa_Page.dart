@@ -215,8 +215,9 @@ class _TarefaPageState extends State<TarefaPage> {
                     direction: AnimatedCardDirection.left,
                     child: Card(
                       elevation: 6,
-                      color: Colors.cyanAccent.shade700,
-                      shadowColor: Colors.black38,
+                      shadowColor: _tarefa.tarefaRealizada == "false"
+                          ? Colors.red
+                          : Colors.blue,
                       child: Container(
                         padding: EdgeInsets.all(10),
                         child: Row(
@@ -228,7 +229,9 @@ class _TarefaPageState extends State<TarefaPage> {
                                 onChanged: (value) {
                                   setState(
                                     () {
-                                      _tarefa.tarefaRealizada = value.toString();
+                                      _tarefa.tarefaRealizada =
+                                          value.toString();
+                                      _db.updateTarefa(_tarefa);
                                     },
                                   );
                                 },
@@ -242,6 +245,13 @@ class _TarefaPageState extends State<TarefaPage> {
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 18,
+                                    decoration: TextDecoration.combine(
+                                      [
+                                        _tarefa.tarefaRealizada == "true"
+                                            ? TextDecoration.lineThrough
+                                            : TextDecoration.none
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -251,11 +261,13 @@ class _TarefaPageState extends State<TarefaPage> {
                               child: Container(
                                   child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   PopupMenuButton(
                                       onSelected: (selectedValue) =>
-                                          _selectedValue(selectedValue, _tarefa),
+                                          _selectedValue(
+                                              selectedValue, _tarefa),
                                       itemBuilder: (BuildContext ctx) => [
                                             PopupMenuItem(
                                                 child: ListTile(

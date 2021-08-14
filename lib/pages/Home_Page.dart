@@ -47,7 +47,10 @@ class _HomePageState extends State<HomePage> {
                   _blocos.data = DateTime.now().toString();
                   _blocos.nomeDoBloco = newValue;
                 },
-                decoration: InputDecoration(labelText: "bloco de Tarefa"),
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: "bloco de Tarefa",
+                ),
               ),
             ),
           ),
@@ -220,21 +223,24 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: AnimatedCard(
                       child: Card(
-                        elevation: 6,
-                        color: Colors.cyanAccent.shade700,
-                        shadowColor: Colors.black38,
+                        shadowColor: _bloco.listaRealizada == "false"
+                            ? Colors.red
+                            : Colors.blue,
                         child: Container(
                           padding: EdgeInsets.all(10),
                           child: Row(
                             children: [
                               Expanded(
                                 child: Checkbox(
+
                                   value: _bloco.listaRealizada.toLowerCase() ==
                                       "true",
                                   onChanged: (value) {
                                     setState(
                                       () {
-                                        _bloco.listaRealizada = value.toString();
+                                        _bloco.listaRealizada =
+                                            value.toString();
+                                        _db.updateBloco(_bloco);
                                       },
                                     );
                                   },
@@ -248,6 +254,13 @@ class _HomePageState extends State<HomePage> {
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,
+                                      decoration: TextDecoration.combine(
+                                        [
+                                          _bloco.listaRealizada == "true"
+                                              ? TextDecoration.lineThrough
+                                              : TextDecoration.none
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -262,8 +275,9 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     PopupMenuButton(
                                         onSelected: (selectedValue) =>
-                                            _selectedValue(selectedValue, _bloco),
-                                        itemBuilder: (BuildContext ctx) => [
+                                            _selectedValue(
+                                                selectedValue, _bloco),
+                                        itemBuilder: (_) => [
                                               PopupMenuItem(
                                                   child: ListTile(
                                                     leading: Icon(
