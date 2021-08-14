@@ -1,16 +1,19 @@
-# bloco_de_anotacao
+![GitHub repo size](https://img.shields.io/github/repo-size/nevitonviana/Bloco-De-Tarefas-com-Flutter) 
+![GitHub all releases](https://img.shields.io/github/downloads/nevitonviana/Bloco-De-Tarefas-com-Flutter/total) 
+![GitHub](https://img.shields.io/github/license/nevitonviana/Bloco-De-Tarefas-com-Flutter) 
+![GitHub User's stars](https://img.shields.io/github/stars/nevitonviana?style=social)
 
-A new Flutter application.
+
+# bloco_de_tarefas
+
+
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+#### app image of Bloco de tarefas 
+![page initial](https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/bloco-de-tarefas-Null-safety/screenshot/printLogo.png) 
+![page home](https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/bloco-de-tarefas-Null-safety/screenshot/printHome.png) 
+![page tarefa](https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/bloco-de-tarefas-Null-safety/screenshot/printTarefa.png)
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+refill the Bloco de tarefas app so you can use the new flutter and dart update as null safety
