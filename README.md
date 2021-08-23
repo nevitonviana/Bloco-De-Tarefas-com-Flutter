@@ -5,15 +5,13 @@
 
 
 # bloco_de_tarefas
+você podera teste o app baixar pela  <a href="https://play.google.com/store/apps/details?id=com.blocodetarefas.bloco_de_tarefas" > google play <img align="center" src="https://img.icons8.com/color/30/000000/google-play.png"/> </a>
+<br/><br/>
+o app foi criando para aprender a mecânica do flutter,
+o bloco de tarafa de bem simple, leve e facil de utilização ele utilizar o sqlite para pode salvar o dados no dispositivel
+
+### <br/>
+#### Imagens do Bloco de tarefas 
+<img Height=520 width=320 src="https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/master/screenshot/printLogo.png"/> <img Height=520 width=320 src="https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/master/screenshot/printHome.png"/><img Height=520 width=320 src="https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/master/screenshot/printTarefa.png"/>
 
 
-
-## Getting Started
-
-#### app image of Bloco de tarefas 
-![page initial](https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/master/screenshot/printLogo.png) 
-![page home](https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/master/screenshot/printHome.png) 
-![page tarefa](https://github.com/nevitonviana/Bloco-De-Tarefas-com-Flutter/blob/master/screenshot/printTarefa.png)
-
-
-refill the Bloco de tarefas app so you can use the new flutter and dart update as null safety
