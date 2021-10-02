@@ -1,9 +1,11 @@
 import 'package:animated_card/animated_card.dart';
 import 'package:bloco_de_tarefas/pages/Tarefa_Page.dart';
+import 'package:bloco_de_tarefas/pages/home/home_controller.dart';
 import 'package:bloco_de_tarefas/shared/database/Database.dart';
 import 'package:bloco_de_tarefas/shared/model/blocos.dart';
 import 'package:bloco_de_tarefas/shared/util/formataData.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
   BancoDeDados _db = BancoDeDados();
   List<Blocos> _listBloco = [];
+  final HomeController _homeController = HomeController();
 
   _abrirDialogDeTextField({Blocos? blocos}) async {
     final nameTag = blocos == null ? "Adicionar" : "Atualizar";
@@ -34,23 +37,17 @@ class _HomePageState extends State<HomePage> {
           content: Container(
             child: Form(
               key: _formKey,
-              child: TextFormField(
-                initialValue: blocos != null ? blocos.nomeDoBloco! : "",
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Este campo e obrigatorio";
-                  }
-                  return null;
-                },
-                onSaved: (newValue) {
-                  _blocos.data = DateTime.now().toString();
-                  _blocos.nomeDoBloco = newValue;
-                },
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: "bloco de Tarefa",
-                ),
-              ),
+              child: Observer(builder: (_) {
+                return TextFormField(
+                  onChanged: _homeController.setTitle,
+                  initialValue: blocos != null ? blocos.nomeDoBloco! : "",
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    errorText: _homeController.titleError,
+                    labelText: "bloco de Tarefa",
+                  ),
+                );
+              }),
             ),
           ),
           actions: [
@@ -68,17 +65,17 @@ class _HomePageState extends State<HomePage> {
               width: 5,
             ),
             TextButton(
-              onPressed: () {
-                _blocos.data = DateTime.now().toString();
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  blocos != null
-                      ? _db.updateBloco(_blocos)
-                      : _db.createBloco(_blocos);
-                  _getBloco();
-                  Navigator.pop(context);
-                }
-              },
+              onPressed: _homeController.formValid, //() {
+              // _blocos.data = DateTime.now().toString();
+              // if (_formKey.currentState!.validate()) {
+              //   _formKey.currentState!.save();
+              //   blocos != null
+              //       ? _db.updateBloco(_blocos)
+              //       : _db.createBloco(_blocos);
+              //   _getBloco();
+              //   Navigator.pop(context);
+              // }
+              //},
               child: Text(
                 nameTag,
                 style: TextStyle(color: Colors.white),
@@ -230,25 +227,19 @@ class _HomePageState extends State<HomePage> {
                           child: Row(
                             children: [
                               Expanded(
-                                child: Checkbox(
-                                  value: _bloco.listaRealizada.toLowerCase() ==
-                                      "true",
-                                  onChanged: (value) {
-                                    setState(
-                                      () {
-                                        _bloco.listaRealizada =
-                                            value.toString();
-                                        _db.updateBloco(_bloco);
-                                      },
-                                    );
-                                  },
-                                ),
+                                child: Observer(builder: (_) {
+                                  return Checkbox(
+                                    value: _homeController.checkBox,
+                                    onChanged: (value) =>
+                                        _homeController.setCheckBox,
+                                  );
+                                }),
                               ),
                               Expanded(
                                 flex: 3,
                                 child: Container(
                                   child: Text(
-                                    _bloco.nomeDoBloco!,
+                                    _bloco.nomeDoBloco ?? "f",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,

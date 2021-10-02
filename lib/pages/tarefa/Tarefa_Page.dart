@@ -222,21 +222,21 @@ class _TarefaPageState extends State<TarefaPage> {
                         padding: EdgeInsets.all(10),
                         child: Row(
                           children: [
-                            // Expanded(
-                            //   child: Checkbox(
-                            //     value: _tarefa.tarefaRealizada.toLowerCase() ==
-                            //         "true",
-                            //     onChanged: (value) {
-                            //       setState(
-                            //         () {
-                            //           _tarefa.tarefaRealizada =
-                            //               value.toString();
-                            //           _db.updateTarefa(_tarefa);
-                            //         },
-                            //       );
-                            //     },
-                            //   ),
-                            // ),
+                            Expanded(
+                              child: Checkbox(
+                                value: _tarefa.tarefaRealizada.toLowerCase() ==
+                                    "true",
+                                onChanged: (value) {
+                                  setState(
+                                    () {
+                                      _tarefa.tarefaRealizada =
+                                          value.toString();
+                                      _db.updateTarefa(_tarefa);
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
                             Expanded(
                               flex: 3,
                               child: Container(
