@@ -1,5 +1,5 @@
 import 'package:animated_card/animated_card.dart';
-import 'package:bloco_de_tarefas/pages/home/components/open_dialog_textField.dart';
+import 'package:bloco_de_tarefas/pages/home/components/open_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -17,97 +17,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   //variaveis
-  Blocos _blocos = Blocos();
-  final _formKey = GlobalKey<FormState>();
-
   final HomeController _homeController = HomeController();
-
-  _dialogDelete(Blocos blocos) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final double horizontal = 130;
-        return Dialog(
-          elevation: 6,
-          child: Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: horizontal, vertical: 18),
-                  color: Colors.red,
-                  child: Text(
-                    "Excluir",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 60),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Você quer Excluir \n\n",
-                      style: TextStyle(fontSize: 15),
-                      children: [
-                        TextSpan(
-                          text: blocos.nomeDoBloco,
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      MaterialButton(
-                        onPressed: () => Navigator.pop(context),
-                        color: Colors.blueAccent,
-                        child: Text(
-                          "Cancelar",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                      SizedBox(width: 15),
-                      MaterialButton(
-                        color: Colors.red,
-                        onPressed: () async {
-                          _homeController.delete(blocos);
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          "Excluir",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   _selectedValue(
       {var value,
       required Blocos blocos,
       required BuildContext context}) async {
     if (value == "1") {
-      await _dialogDelete(blocos);
+      await OpenDialog().Delete(
+        context: context,
+        blocos: blocos,
+        homeController: _homeController,
+      );
     } else {
       OpenDialog().TextField(
-          blocos: blocos, context: context, homeController: _homeController);
+        blocos: blocos,
+        context: context,
+        homeController: _homeController,
+      );
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
