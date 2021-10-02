@@ -1,10 +1,12 @@
 import 'package:animated_card/animated_card.dart';
-import 'package:bloco_de_tarefas/pages/Tarefa_Page.dart';
-import 'package:bloco_de_tarefas/pages/home/comtroller/home_controller.dart';
-import 'package:bloco_de_tarefas/shared/model/blocos.dart';
-import 'package:bloco_de_tarefas/shared/util/formataData.dart';
+import 'package:bloco_de_tarefas/pages/home/components/open_dialog_textField.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+
+import '/pages/Tarefa_Page.dart';
+import '/shared/model/blocos.dart';
+import '/shared/util/formataData.dart';
+import 'controller/home_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,70 +21,6 @@ class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
 
   final HomeController _homeController = HomeController();
-
-  _abrirDialogDeTextField({Blocos? blocos}) async {
-    final nameTag = blocos == null ? "Adicionar" : "Atualizar";
-    _blocos = blocos != null ? blocos : _blocos;
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          elevation: 6,
-          title: Text(
-            nameTag,
-            textAlign: TextAlign.center,
-          ),
-          content: Container(
-            child: Form(
-              key: _formKey,
-              child: Observer(builder: (_) {
-                return TextFormField(
-                  onChanged: _homeController.setTitle,
-                  initialValue: blocos != null ? blocos.nomeDoBloco! : "",
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    errorText: _homeController.titleError,
-                    labelText: "bloco de Tarefa",
-                  ),
-                );
-              }),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Cancelar",
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.red),
-              ),
-            ),
-            SizedBox(
-              width: 5,
-            ),
-            TextButton(
-              onPressed: () {
-                _homeController.send(bloco: blocos);
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                nameTag,
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
-              ),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   _dialogDelete(Blocos blocos) async {
     showDialog(
@@ -155,11 +93,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _selectedValue(var value, Blocos blocos) async {
+  _selectedValue(
+      {var value,
+      required Blocos blocos,
+      required BuildContext context}) async {
     if (value == "1") {
       await _dialogDelete(blocos);
     } else {
-      _abrirDialogDeTextField(blocos: blocos);
+      OpenDialog().TextField(
+          blocos: blocos, context: context, homeController: _homeController);
     }
   }
 
@@ -245,7 +187,10 @@ class _HomePageState extends State<HomePage> {
                                       PopupMenuButton(
                                           onSelected: (selectedValue) =>
                                               _selectedValue(
-                                                  selectedValue, _bloco),
+                                                value: selectedValue,
+                                                blocos: _bloco,
+                                                context: context,
+                                              ),
                                           itemBuilder: (_) => [
                                                 PopupMenuItem(
                                                     child: ListTile(
@@ -285,7 +230,8 @@ class _HomePageState extends State<HomePage> {
             }),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => _abrirDialogDeTextField(),
+            onPressed: () => OpenDialog()
+                .TextField(context: context, homeController: _homeController),
             elevation: 6,
             child: Icon(
               Icons.add_circle_outline_outlined,
