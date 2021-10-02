@@ -1,7 +1,6 @@
 import 'package:animated_card/animated_card.dart';
 import 'package:bloco_de_tarefas/pages/Tarefa_Page.dart';
-import 'package:bloco_de_tarefas/pages/home/home_controller.dart';
-import 'package:bloco_de_tarefas/shared/database/Database.dart';
+import 'package:bloco_de_tarefas/pages/home/comtroller/home_controller.dart';
 import 'package:bloco_de_tarefas/shared/model/blocos.dart';
 import 'package:bloco_de_tarefas/shared/util/formataData.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +17,7 @@ class _HomePageState extends State<HomePage> {
   //variaveis
   Blocos _blocos = Blocos();
   final _formKey = GlobalKey<FormState>();
-  BancoDeDados _db = BancoDeDados();
-  List<Blocos> _listBloco = [];
+
   final HomeController _homeController = HomeController();
 
   _abrirDialogDeTextField({Blocos? blocos}) async {
@@ -65,17 +63,10 @@ class _HomePageState extends State<HomePage> {
               width: 5,
             ),
             TextButton(
-              onPressed: _homeController.formValid, //() {
-              // _blocos.data = DateTime.now().toString();
-              // if (_formKey.currentState!.validate()) {
-              //   _formKey.currentState!.save();
-              //   blocos != null
-              //       ? _db.updateBloco(_blocos)
-              //       : _db.createBloco(_blocos);
-              //   _getBloco();
-              //   Navigator.pop(context);
-              // }
-              //},
+              onPressed: () {
+                _homeController.send(bloco: blocos);
+                Navigator.of(context).pop();
+              },
               child: Text(
                 nameTag,
                 style: TextStyle(color: Colors.white),
@@ -91,18 +82,6 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-  }
-
-  _getBloco() async {
-    var dados = await _db.readBloco();
-    List<Blocos>? _temporaryList = [];
-    for (dynamic item in dados) {
-      _temporaryList.add(Blocos.fromMap(item));
-    }
-    setState(() {
-      _listBloco = _temporaryList!;
-    });
-    _temporaryList = null;
   }
 
   _dialogDelete(Blocos blocos) async {
@@ -157,8 +136,7 @@ class _HomePageState extends State<HomePage> {
                       MaterialButton(
                         color: Colors.red,
                         onPressed: () async {
-                          await _db.deleteBloco(blocos.id!);
-                          _getBloco();
+                          _homeController.delete(blocos);
                           Navigator.pop(context);
                         },
                         child: Text(
@@ -183,13 +161,11 @@ class _HomePageState extends State<HomePage> {
     } else {
       _abrirDialogDeTextField(blocos: blocos);
     }
-    await _getBloco();
   }
 
   @override
   void initState() {
     super.initState();
-    _getBloco();
   }
 
   @override
@@ -202,106 +178,111 @@ class _HomePageState extends State<HomePage> {
             centerTitle: true,
           ),
           body: Container(
-            child: ListView.builder(
-              itemCount: _listBloco.length,
-              itemBuilder: (context, index) {
-                final _bloco = _listBloco[index];
-                return Container(
-                  padding: EdgeInsets.only(top: 10, right: 10, left: 10),
-                  child: GestureDetector(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TarefaPage(
-                          blocos: _bloco,
+            child: Observer(builder: (context) {
+              return ListView.builder(
+                itemCount: _homeController.listBlocos.length,
+                itemBuilder: (context, index) {
+                  final _bloco = _homeController.listBlocos[index];
+                  return Container(
+                    padding: EdgeInsets.only(top: 10, right: 10, left: 10),
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TarefaPage(
+                            blocos: _bloco,
+                          ),
                         ),
                       ),
-                    ),
-                    child: AnimatedCard(
-                      child: Card(
-                        shadowColor: _bloco.listaRealizada == "false"
-                            ? Colors.red
-                            : Colors.blue,
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Observer(builder: (_) {
-                                  return Checkbox(
-                                    value: _homeController.checkBox,
-                                    onChanged: (value) =>
-                                        _homeController.setCheckBox,
-                                  );
-                                }),
-                              ),
-                              Expanded(
-                                flex: 3,
-                                child: Container(
-                                  child: Text(
-                                    _bloco.nomeDoBloco ?? "f",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                      decoration: TextDecoration.combine(
-                                        [
-                                          _bloco.listaRealizada == "true"
-                                              ? TextDecoration.lineThrough
-                                              : TextDecoration.none
-                                        ],
+                      child: AnimatedCard(
+                        child: Card(
+                          shadowColor: _bloco.listaRealizada == "false"
+                              ? Colors.red
+                              : Colors.blue,
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Checkbox(
+                                    value:
+                                        _bloco.listaRealizada.toLowerCase() ==
+                                            "true",
+                                    onChanged: (value) {
+                                      _homeController.setCheckBox(value!);
+                                      _homeController.saveCheckBox(
+                                          bloco: _bloco);
+                                    },
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Container(
+                                    child: Text(
+                                      _bloco.nomeDoBloco ?? "null",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18,
+                                        decoration: TextDecoration.combine(
+                                          [
+                                            _bloco.listaRealizada == "true"
+                                                ? TextDecoration.lineThrough
+                                                : TextDecoration.none
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Container(
-                                    child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    PopupMenuButton(
-                                        onSelected: (selectedValue) =>
-                                            _selectedValue(
-                                                selectedValue, _bloco),
-                                        itemBuilder: (_) => [
-                                              PopupMenuItem(
-                                                  child: ListTile(
-                                                    leading: Icon(
-                                                      Icons.delete_forever,
-                                                      color: Colors.red,
+                                Expanded(
+                                  flex: 2,
+                                  child: Container(
+                                      child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      PopupMenuButton(
+                                          onSelected: (selectedValue) =>
+                                              _selectedValue(
+                                                  selectedValue, _bloco),
+                                          itemBuilder: (_) => [
+                                                PopupMenuItem(
+                                                    child: ListTile(
+                                                      leading: Icon(
+                                                        Icons.delete_forever,
+                                                        color: Colors.red,
+                                                      ),
+                                                      title: Text("Deleta"),
                                                     ),
-                                                    title: Text("Deleta"),
-                                                  ),
-                                                  value: '1'),
-                                              PopupMenuItem(
-                                                  child: ListTile(
-                                                    leading: Icon(
-                                                      Icons.edit,
-                                                      color: Colors.blue,
+                                                    value: '1'),
+                                                PopupMenuItem(
+                                                    child: ListTile(
+                                                      leading: Icon(
+                                                        Icons.edit,
+                                                        color: Colors.blue,
+                                                      ),
+                                                      title: Text("Edita"),
                                                     ),
-                                                    title: Text("Edita"),
-                                                  ),
-                                                  value: '2'),
-                                            ]),
-                                    Text(
-                                      Data().data(_bloco.data.toString()),
-                                      style: TextStyle(fontSize: 13),
-                                    ),
-                                  ],
-                                )),
-                              ),
-                            ],
+                                                    value: '2'),
+                                              ]),
+                                      Text(
+                                        Data().data(_bloco.data.toString()),
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ],
+                                  )),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              );
+            }),
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => _abrirDialogDeTextField(),

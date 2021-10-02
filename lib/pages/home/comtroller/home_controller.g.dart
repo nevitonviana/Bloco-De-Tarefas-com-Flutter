@@ -16,13 +16,6 @@ mixin _$HomeController on _HomeControllerBase, Store {
       (_$titleValidComputed ??= Computed<bool>(() => super.titleValid,
               name: '_HomeControllerBase.titleValid'))
           .value;
-  Computed<dynamic>? _$formValidComputed;
-
-  @override
-  dynamic get formValid =>
-      (_$formValidComputed ??= Computed<dynamic>(() => super.formValid,
-              name: '_HomeControllerBase.formValid'))
-          .value;
 
   final _$titleAtom = Atom(name: '_HomeControllerBase.title');
 
@@ -54,11 +47,11 @@ mixin _$HomeController on _HomeControllerBase, Store {
     });
   }
 
-  final _$_sendAsyncAction = AsyncAction('_HomeControllerBase._send');
+  final _$sendAsyncAction = AsyncAction('_HomeControllerBase.send');
 
   @override
-  Future<void> _send() {
-    return _$_sendAsyncAction.run(() => super._send());
+  Future<void> send({Blocos? bloco}) {
+    return _$sendAsyncAction.run(() => super.send(bloco: bloco));
   }
 
   final _$_HomeControllerBaseActionController =
@@ -91,8 +84,7 @@ mixin _$HomeController on _HomeControllerBase, Store {
     return '''
 title: ${title},
 checkBox: ${checkBox},
-titleValid: ${titleValid},
-formValid: ${formValid}
+titleValid: ${titleValid}
     ''';
   }
 }

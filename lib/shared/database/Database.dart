@@ -1,7 +1,7 @@
 import 'package:bloco_de_tarefas/shared/model/blocos.dart';
 import 'package:bloco_de_tarefas/shared/model/tarefas.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class BancoDeDados {
   static final BancoDeDados _bancoDeDados = BancoDeDados._internal();
