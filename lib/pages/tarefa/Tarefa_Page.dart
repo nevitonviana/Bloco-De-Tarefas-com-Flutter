@@ -1,4 +1,5 @@
 import 'package:animated_card/animated_card.dart';
+import 'package:bloco_de_tarefas/pages/tarefa/components/dialog.dart';
 import 'package:bloco_de_tarefas/pages/tarefa/controller/tarefa_controller.dart';
 import 'package:bloco_de_tarefas/shared/model/blocos.dart';
 import 'package:bloco_de_tarefas/shared/model/tarefas.dart';
@@ -19,144 +20,19 @@ class _TarefaPageState extends State<TarefaPage> {
   //variaveis
   final TarefaController _tarefaController = TarefaController();
 
-  _abrirDialogDeTextField({Tarefas? tarefas}) async {
-    final nameTag = tarefas == null ? "Adicionar" : "Atualizar";
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          elevation: 6,
-          title: Text(
-            nameTag,
-            textAlign: TextAlign.center,
-          ),
-          content: Container(
-            child: Observer(
-              builder: (_) {
-                return TextFormField(
-                  onChanged: _tarefaController.setTitle,
-                  initialValue: tarefas != null ? tarefas.tarefa! : "",
-                  decoration: InputDecoration(
-                    errorText: _tarefaController.titleError,
-                    labelText: "bloco de Tarefa",
-                  ),
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                "Cancelar",
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.red),
-              ),
-            ),
-            SizedBox(
-              width: 5,
-            ),
-            TextButton(
-              onPressed: () {
-                _tarefaController.send(tarefa: tarefas);
-                Navigator.pop(context);
-              },
-              child: Text(
-                nameTag,
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.blueAccent),
-              ),
-            ),
-            SizedBox(
-              width: 10,
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  _dialogDelete(Tarefas tarefas) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final double horizontal = 130;
-        return Dialog(
-          elevation: 6,
-          child: Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: horizontal, vertical: 18),
-                  color: Colors.red,
-                  child: Text(
-                    "Excluir",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 60),
-                  child: Text.rich(
-                    TextSpan(
-                      text: "Você quer Excluir \n\n",
-                      style: TextStyle(fontSize: 15),
-                      children: [
-                        TextSpan(
-                          text: tarefas.tarefa,
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      MaterialButton(
-                        onPressed: () => Navigator.pop(context),
-                        color: Colors.blueAccent,
-                        child: Text(
-                          "Cancelar",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                      SizedBox(width: 15),
-                      MaterialButton(
-                        color: Colors.red,
-                        onPressed: () async {
-                          _tarefaController.remove(tarefa: tarefas);
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          "Excluir",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   _selectedValue(var value, Tarefas tarefas) async {
     if (value == "1") {
-      await _dialogDelete(tarefas);
+      await OpenDialog().delete(
+        tarefas: tarefas,
+        context: context,
+        tarefaController: _tarefaController,
+      );
     } else {
-      _abrirDialogDeTextField(tarefas: tarefas);
+      OpenDialog().textField(
+        context: context,
+        tarefaController: _tarefaController,
+        tarefas: tarefas,
+      );
     }
   }
 
@@ -277,7 +153,10 @@ class _TarefaPageState extends State<TarefaPage> {
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => _abrirDialogDeTextField(),
+            onPressed: () => OpenDialog().textField(
+              context: context,
+              tarefaController: _tarefaController,
+            ),
             elevation: 6,
             child: Icon(
               Icons.add_circle_outline_outlined,
