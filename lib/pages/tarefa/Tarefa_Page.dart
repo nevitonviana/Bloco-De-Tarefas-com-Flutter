@@ -1,9 +1,10 @@
 import 'package:animated_card/animated_card.dart';
-import 'package:bloco_de_tarefas/shared/database/Database.dart';
+import 'package:bloco_de_tarefas/pages/tarefa/controller/tarefa_controller.dart';
 import 'package:bloco_de_tarefas/shared/model/blocos.dart';
 import 'package:bloco_de_tarefas/shared/model/tarefas.dart';
 import 'package:bloco_de_tarefas/shared/util/formataData.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TarefaPage extends StatefulWidget {
   final Blocos blocos;
@@ -16,14 +17,11 @@ class TarefaPage extends StatefulWidget {
 
 class _TarefaPageState extends State<TarefaPage> {
   //variaveis
-  Tarefas _tarefas = Tarefas();
-  final _formKey = GlobalKey<FormState>();
-  BancoDeDados _db = BancoDeDados();
-  List<Tarefas> _listTarefas = [];
+  final TarefaController _tarefaController = TarefaController();
 
   _abrirDialogDeTextField({Tarefas? tarefas}) async {
     final nameTag = tarefas == null ? "Adicionar" : "Atualizar";
-    _tarefas = tarefas != null ? tarefas : _tarefas;
+
     showDialog(
       context: context,
       builder: (context) {
@@ -34,23 +32,17 @@ class _TarefaPageState extends State<TarefaPage> {
             textAlign: TextAlign.center,
           ),
           content: Container(
-            child: Form(
-              key: _formKey,
-              child: TextFormField(
-                initialValue: tarefas != null ? tarefas.tarefa! : "",
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Este campo e obrigatorio";
-                  }
-                  return null;
-                },
-                onSaved: (newValue) {
-                  _tarefas.data = DateTime.now().toString();
-                  _tarefas.tarefa = newValue;
-                  _tarefas.idBloco = widget.blocos.id!;
-                },
-                decoration: InputDecoration(labelText: "bloco de Tarefa"),
-              ),
+            child: Observer(
+              builder: (_) {
+                return TextFormField(
+                  onChanged: _tarefaController.setTitle,
+                  initialValue: tarefas != null ? tarefas.tarefa! : "",
+                  decoration: InputDecoration(
+                    errorText: _tarefaController.titleError,
+                    labelText: "bloco de Tarefa",
+                  ),
+                );
+              },
             ),
           ),
           actions: [
@@ -69,15 +61,8 @@ class _TarefaPageState extends State<TarefaPage> {
             ),
             TextButton(
               onPressed: () {
-                _tarefas.data = DateTime.now().toString();
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  tarefas != null
-                      ? _db.updateTarefa(_tarefas)
-                      : _db.createTarefa(_tarefas);
-                  _getTarefas();
-                  Navigator.pop(context);
-                }
+                _tarefaController.send(tarefa: tarefas);
+                Navigator.pop(context);
               },
               child: Text(
                 nameTag,
@@ -94,18 +79,6 @@ class _TarefaPageState extends State<TarefaPage> {
         );
       },
     );
-  }
-
-  _getTarefas() async {
-    var dados = await _db.readTarefa(widget.blocos.id!);
-    List<Tarefas>? _temporaryList = [];
-    for (dynamic item in dados) {
-      _temporaryList.add(Tarefas.fromMap(item));
-    }
-    setState(() {
-      _listTarefas = _temporaryList!;
-    });
-    _temporaryList = null;
   }
 
   _dialogDelete(Tarefas tarefas) async {
@@ -160,8 +133,7 @@ class _TarefaPageState extends State<TarefaPage> {
                       MaterialButton(
                         color: Colors.red,
                         onPressed: () async {
-                          await _db.deleteBloco(tarefas.id!);
-                          _getTarefas();
+                          _tarefaController.remove(tarefa: tarefas);
                           Navigator.pop(context);
                         },
                         child: Text(
@@ -186,13 +158,12 @@ class _TarefaPageState extends State<TarefaPage> {
     } else {
       _abrirDialogDeTextField(tarefas: tarefas);
     }
-    await _getTarefas();
   }
 
   @override
   void initState() {
+    _tarefaController.setBlocoId(widget.blocos.id!);
     super.initState();
-    _getTarefas();
   }
 
   @override
@@ -205,101 +176,102 @@ class _TarefaPageState extends State<TarefaPage> {
             centerTitle: true,
           ),
           body: Container(
-            child: ListView.builder(
-              itemCount: _listTarefas.length,
-              itemBuilder: (context, index) {
-                final _tarefa = _listTarefas[index];
-                return Container(
-                  padding: EdgeInsets.only(top: 10, right: 10, left: 10),
-                  child: AnimatedCard(
-                    direction: AnimatedCardDirection.left,
-                    child: Card(
-                      elevation: 6,
-                      shadowColor: _tarefa.tarefaRealizada == "false"
-                          ? Colors.red
-                          : Colors.blue,
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Checkbox(
-                                value: _tarefa.tarefaRealizada.toLowerCase() ==
-                                    "true",
-                                onChanged: (value) {
-                                  setState(
-                                    () {
-                                      _tarefa.tarefaRealizada =
-                                          value.toString();
-                                      _db.updateTarefa(_tarefa);
+            child: Observer(
+              builder: (_) {
+                return ListView.builder(
+                  itemCount: _tarefaController.listTarefa.length,
+                  itemBuilder: (context, index) {
+                    final _tarefa = _tarefaController.listTarefa[index];
+                    return Container(
+                      padding: EdgeInsets.only(top: 10, right: 10, left: 10),
+                      child: AnimatedCard(
+                        direction: AnimatedCardDirection.left,
+                        child: Card(
+                          elevation: 6,
+                          shadowColor: _tarefa.tarefaRealizada == "false"
+                              ? Colors.red
+                              : Colors.blue,
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Checkbox(
+                                    value:
+                                        _tarefa.tarefaRealizada.toLowerCase() ==
+                                            "true",
+                                    onChanged: (value) {
+                                      _tarefaController.setCheckbox(value!);
+                                      _tarefaController.saveCheckBox(
+                                          tarefa: _tarefa);
                                     },
-                                  );
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: Container(
-                                child: Text(
-                                  _tarefa.tarefa!,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 18,
-                                    decoration: TextDecoration.combine(
-                                      [
-                                        _tarefa.tarefaRealizada == "true"
-                                            ? TextDecoration.lineThrough
-                                            : TextDecoration.none
-                                      ],
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 3,
+                                  child: Container(
+                                    child: Text(
+                                      _tarefa.tarefa!,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18,
+                                        decoration: TextDecoration.combine(
+                                          [
+                                            _tarefa.tarefaRealizada == "true"
+                                                ? TextDecoration.lineThrough
+                                                : TextDecoration.none
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Container(
+                                      child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      PopupMenuButton(
+                                          onSelected: (selectedValue) =>
+                                              _selectedValue(
+                                                  selectedValue, _tarefa),
+                                          itemBuilder: (BuildContext ctx) => [
+                                                PopupMenuItem(
+                                                    child: ListTile(
+                                                      leading: Icon(
+                                                        Icons.delete_forever,
+                                                        color: Colors.red,
+                                                      ),
+                                                      title: Text("Deleta"),
+                                                    ),
+                                                    value: '1'),
+                                                PopupMenuItem(
+                                                    child: ListTile(
+                                                      leading: Icon(
+                                                        Icons.edit,
+                                                        color: Colors.blue,
+                                                      ),
+                                                      title: Text("Edita"),
+                                                    ),
+                                                    value: '2'),
+                                              ]),
+                                      Text(
+                                        Data().data(_tarefa.data.toString()),
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ],
+                                  )),
+                                ),
+                              ],
                             ),
-                            Expanded(
-                              flex: 2,
-                              child: Container(
-                                  child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  PopupMenuButton(
-                                      onSelected: (selectedValue) =>
-                                          _selectedValue(
-                                              selectedValue, _tarefa),
-                                      itemBuilder: (BuildContext ctx) => [
-                                            PopupMenuItem(
-                                                child: ListTile(
-                                                  leading: Icon(
-                                                    Icons.delete_forever,
-                                                    color: Colors.red,
-                                                  ),
-                                                  title: Text("Deleta"),
-                                                ),
-                                                value: '1'),
-                                            PopupMenuItem(
-                                                child: ListTile(
-                                                  leading: Icon(
-                                                    Icons.edit,
-                                                    color: Colors.blue,
-                                                  ),
-                                                  title: Text("Edita"),
-                                                ),
-                                                value: '2'),
-                                          ]),
-                                  Text(
-                                    Data().data(_tarefa.data.toString()),
-                                    style: TextStyle(fontSize: 13),
-                                  ),
-                                ],
-                              )),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 );
               },
             ),

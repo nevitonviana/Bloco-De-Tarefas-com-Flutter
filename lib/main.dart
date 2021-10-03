@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'pages/home/Home_Page.dart';
 
-void main() {
+void main() async {
   runApp(
     MaterialApp(
       theme: ThemeData(
@@ -39,3 +39,4 @@ void main() {
     ),
   );
 }
+

@@ -5,7 +5,7 @@ import '/shared/model/blocos.dart';
 import '../controller/home_controller.dart';
 
 class OpenDialog {
-  TextField({
+  textField({
     Blocos? blocos,
     required BuildContext context,
     required HomeController homeController,
@@ -69,7 +69,7 @@ class OpenDialog {
     );
   }
 
-  Delete({
+  delete({
     required Blocos blocos,
     required BuildContext context,
     required HomeController homeController,

@@ -19,13 +19,13 @@ abstract class _HomeControllerBase with Store {
   Future<void> _getListBlocos() async {
     List<Blocos> _temporaryList = [];
     final dados = await _db.readBloco();
-    _temporaryList.clear();
+
     listBlocos.clear();
     for (dynamic item in dados) {
       _temporaryList.add(Blocos.fromMap(item));
     }
-
     listBlocos.addAll(_temporaryList);
+    _temporaryList.clear();
   }
 
   //ListBloco
@@ -77,7 +77,7 @@ abstract class _HomeControllerBase with Store {
       nomeDoBloco: title,
     );
     await _db.createBloco(_blocos);
-    listBlocos.insert(0, _blocos);
+    _getListBlocos();
   }
 
   /// Delete bloco
