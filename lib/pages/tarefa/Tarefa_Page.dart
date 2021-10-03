@@ -1,11 +1,12 @@
 import 'package:animated_card/animated_card.dart';
-import 'package:bloco_de_tarefas/pages/tarefa/components/dialog.dart';
-import 'package:bloco_de_tarefas/pages/tarefa/controller/tarefa_controller.dart';
-import 'package:bloco_de_tarefas/shared/model/blocos.dart';
-import 'package:bloco_de_tarefas/shared/model/tarefas.dart';
-import 'package:bloco_de_tarefas/shared/util/formataData.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+
+import '/pages/tarefa/components/dialog.dart';
+import '/pages/tarefa/controller/tarefa_controller.dart';
+import '/shared/model/blocos.dart';
+import '/shared/model/tarefas.dart';
+import '/shared/util/formataData.dart';
 
 class TarefaPage extends StatefulWidget {
   final Blocos blocos;
